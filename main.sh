@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Version: v0.0.1
+# Version: v0.1.1
 # Author: Sabatarou <sinkuma135@gmail.com>
 # LastUpdate: 07/22/2020 01:17
 #
 #set -eu
 
-readonly DATETIME="$(date +%Y%m%d_%Y%M%S)"
+readonly DATETIME="$(date +%Y%m%d_%H%M%S)"
 readonly HOST_LIST="host.list"
 readonly LOG_DIR="log"
 readonly MANAGE_SUMMERY="ping-test"
@@ -16,22 +16,20 @@ readonly TIMEOUT=1
 readonly COUNT=30
 
 # リストファイルの存在確認
-if [ -e "${HOST_LIST}"  ]; then
+if [[ -e "${HOST_LIST}"  ]]; then
     :
 else
-    echo "${HOST_LIST} does not exists. please set your host list."
+    echo "ERROR: ${HOST_LIST} does not exists. please set your host list."
 
     exit 1
 fi
 
 
 # ログディレクトリの作成
-test ls -ld "${LOG_DIR}"
-DIR_STATUS=$(echo $?)
-if [[ "${DIR_STATUS}" -ne 0 ]]; then
-    mkdir -m 755 ./"${LOG_DIR}"
-else
+if [[ -e "${LOG_DIR}" ]]; then
     :
+else
+    mkdir -m 755 ./"${LOG_DIR}"
 fi
 
 # PINGヘッダの記載
@@ -43,7 +41,7 @@ ifconfig>> "${LOG_DIR}"/"${LOG_NAME}"
 
 # 全ホストの数(行数)の確認
 function count_hosts(){
-    _host_count=0
+    local _host_count=0
 
     while read _hosts
     do
@@ -51,16 +49,15 @@ function count_hosts(){
     done <"${HOST_LIST}"
     
     host_total="${_host_count}"
-    #echo "${host_total}"
 
     return 0
 }
 
 # PING実行
 function ping_test(){
-    _host_count=1
+    local _host_count=1
 
-    echo -e "\nPING test start.\n"
+    echo -e "PING test start.\n"
 
     while read _hosts
     do
@@ -75,8 +72,8 @@ function ping_test(){
     done <"${HOST_LIST}"
     echo -e "\n----------------------------------------">> "${LOG_DIR}"/"${LOG_NAME}"
 
-    echo -e "\nPING test end."
-    echo "Test result saved to $pwd/${LOG_DIR}/${LOG_NAME}."
+    echo -e "\nPING test end.\n"
+    echo "Test result saved to ${PWD}/${LOG_DIR}/${LOG_NAME}."
     return 0
 }
 
